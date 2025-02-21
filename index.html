@@ -76,11 +76,15 @@
 
                 let presence = parsedData.userPresences[0];
 
-                if (presence.userPresenceType === 2) { // 2 = Playing a game
+                if (presence.userPresenceType === 2) { 
+                    // 2 = Playing a game
                     let gameId = presence.placeId;
                     document.getElementById("result").innerHTML = `User is playing: <a href="https://www.roblox.com/games/${gameId}" target="_blank">${presence.lastLocation}</a>`;
+                } else if (presence.userPresenceType === 1) { 
+                    // 1 = Online but not playing
+                    document.getElementById("result").textContent = "User is online but not playing a game.";
                 } else {
-                    document.getElementById("result").textContent = "User is not currently playing a game.";
+                    document.getElementById("result").textContent = "User is offline.";
                 }
             } catch (error) {
                 console.error("Error fetching presence data:", error);
