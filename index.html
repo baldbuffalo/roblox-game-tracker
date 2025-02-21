@@ -13,13 +13,17 @@
 
     <script>
         async function getUserId(username) {
-            let response = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+            let url = "https://users.roblox.com/v1/usernames/users";
+
+            let response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
             });
+
             let data = await response.json();
-            return data.data.length > 0 ? data.data[0].id : null;
+            let parsedData = JSON.parse(data.contents);
+            return parsedData.data.length > 0 ? parsedData.data[0].id : null;
         }
 
         async function checkGame() {
@@ -35,14 +39,16 @@
                 return;
             }
 
-            let response = await fetch("https://presence.roblox.com/v1/presence/users", {
+            let presenceUrl = "https://presence.roblox.com/v1/presence/users";
+            let response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(presenceUrl)}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userIds: [userId] })
             });
 
             let data = await response.json();
-            let presence = data.userPresences[0];
+            let parsedData = JSON.parse(data.contents);
+            let presence = parsedData.userPresences[0];
 
             if (presence.userPresenceType === 2) {
                 let gameId = presence.placeId;
