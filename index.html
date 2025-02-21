@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Game Tracker</title>
+</head>
+<body>
+    <h2>Check What Game a Roblox User is Playing</h2>
+    <input type="text" id="username" placeholder="Enter Roblox Username">
+    <button onclick="checkGame()">Check</button>
+    <p id="result"></p>
+
+    <script>
+        async function getUserId(username) {
+            let response = await fetch(`https://users.roblox.com/v1/usernames/users`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
+            });
+            let data = await response.json();
+            return data.data.length > 0 ? data.data[0].id : null;
+        }
+
+        async function checkGame() {
+            let username = document.getElementById("username").value;
+            if (!username) {
+                document.getElementById("result").textContent = "Please enter a username!";
+                return;
+            }
+
+            let userId = await getUserId(username);
+            if (!userId) {
+                document.getElementById("result").textContent = "User not found!";
+                return;
+            }
+
+            let response = await fetch("https://presence.roblox.com/v1/presence/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userIds: [userId] })
+            });
+
+            let data = await response.json();
+            let presence = data.userPresences[0];
+
+            if (presence.userPresenceType === 2) {
+                let gameId = presence.placeId;
+                document.getElementById("result").innerHTML = `User is playing: <a href="https://www.roblox.com/games/${gameId}" target="_blank">${presence.lastLocation}</a>`;
+            } else {
+                document.getElementById("result").textContent = "User is not currently playing a game.";
+            }
+        }
+    </script>
+</body>
+</html>
